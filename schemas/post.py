@@ -1,13 +1,21 @@
 from uuid import uuid4, UUID
 
-from pydantic import BaseModel, Field
-from datetime import datetime
+from pydantic import BaseModel, Field, validator, field_validator
+from datetime import datetime, timezone
+
+
+def _default_time():
+    return datetime.now(timezone.utc)
+
+
+def _change_local_time(time: datetime):
+    return time.astimezone()
 
 
 class PostBase(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    created_at: datetime = Field(default_factory=_default_time)
+    updated_at: datetime = Field(default_factory=_default_time)
 
 
 class Post(PostBase):
@@ -23,4 +31,6 @@ class RequestPost(BaseModel):
 
 
 class ResponsePost(Post):
-    pass
+    @field_validator('created_at', 'updated_at')
+    def _change_local_time(cls, time: datetime):
+        return time.astimezone()

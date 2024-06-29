@@ -45,7 +45,7 @@ def read_post(post_id: UUID) -> ResponsePost:
 
 
 @app.post("/posts/", response_model=ResponsePost, status_code=status.HTTP_201_CREATED)
-def create_post(post: RequestPost) -> Post:
+def create_post(post: RequestPost) -> ResponsePost:
     """
     게시글 생성
     :param post: 생성할 게시글의 내용 (author, title, content)
