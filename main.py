@@ -6,7 +6,7 @@ post_data = []
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
-def read_root() -> dict:
+def read_root() -> dict[str, str]:
     """
     메인페이지
     루트 경로 접속 시, 세션을 설정한다.
@@ -44,11 +44,11 @@ def read_post(post_id: int) -> ResponsePost:
     try:
         return post_data[post_id]
     except IndexError:
-        raise HTTPException(status_code=404, detail="존재하지 않는 게시글입니다.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="존재하지 않는 게시글입니다.")
 
 
 @app.post("/posts/", response_model=ResponsePost, status_code=status.HTTP_201_CREATED)
-def create_post(post: RequestPost):
+def create_post(post: RequestPost) -> Post:
     """
     게시글 생성
     :param post: 생성할 게시글의 내용 (author, title, content)
