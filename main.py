@@ -1,8 +1,10 @@
+from uuid import UUID
+
 from fastapi import FastAPI, HTTPException, status
 from schemas.post import Post, ResponsePost, RequestPost
 
 app = FastAPI()
-post_data = []
+post_data = {}
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
@@ -22,12 +24,7 @@ def read_posts() -> list[ResponsePost]:
     게시글 목록 조회
     :return: 게시글 목록과 각 게시글의 URL을 포함한 리스트를 반환합니다.
     """
-    return [
-        {
-            **post.__dict__
-        }
-        for post in post_data
-    ]
+    return post_data.values()
 
 
 @app.get(
@@ -35,7 +32,7 @@ def read_posts() -> list[ResponsePost]:
     response_model=ResponsePost,
     status_code=status.HTTP_200_OK
 )
-def read_post(post_id: int) -> ResponsePost:
+def read_post(post_id: UUID) -> ResponsePost:
     """
     게시글 조회
     :param post_id: 조회할 게시글의 ID
@@ -54,5 +51,7 @@ def create_post(post: RequestPost) -> Post:
     :param post: 생성할 게시글의 내용 (author, title, content)
     :return: 생성 후 루트 경로로 리다이렉트합니다.
     """
-    post_data.append(Post(**post.__dict__))
+    post = Post(**post.__dict__)
+    post_data[post.id] = post
+
     return post
