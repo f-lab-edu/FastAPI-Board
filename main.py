@@ -1,4 +1,5 @@
 import secrets
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, status
@@ -73,3 +74,32 @@ def create_post(request: Request, post: RequestPost) -> ResponsePost:
     post_data[post.id] = post
 
     return post
+
+@app.patch(
+    "/posts/{post_id}",
+    response_model=ResponsePost,
+    status_code=status.HTTP_200_OK
+)
+def update_post(request: Request, post_id: UUID, update_data: RequestPost) -> ResponsePost:
+    """
+    게시글 수정
+    :param post_id: 수정할 게시글의 ID
+    :return: 특정 ID를 가진 게시글의 내용을 수정합니다. 존재하지 않는 게시글 ID인 경우 404 에러를 발생시킵니다.
+    """
+    try:
+        post = post_data[post_id]
+
+        # 게시글 작성자인지 확인
+        if request.cookies.get("token") != post.token:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="작성자만 변경 가능합니다.")
+
+        # 게시글 내용 수정
+        for key, value in update_data:
+            setattr(post, key, value)
+
+        # 업데이트 시간 설정
+        post.updated_at = datetime.utcnow()
+
+        return post
+    except IndexError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="존재하지 않는 게시글입니다.")
