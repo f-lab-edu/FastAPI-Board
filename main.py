@@ -65,7 +65,6 @@ def read_posts() -> list[ResponsePost]:
     response_model=ResponsePost,
     status_code=status.HTTP_200_OK
 )
-@author_verification
 def read_post(request: Request, post_id: UUID) -> ResponsePost:
     """
     게시글 조회
