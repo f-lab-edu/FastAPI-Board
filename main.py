@@ -95,7 +95,8 @@ def update_post(request: Request, post_id: UUID, update_data: UpdatePost) -> Res
 
         # 게시글 내용 수정
         for key, value in update_data:
-            setattr(post, key, value)
+            if value:
+                setattr(post, key, value)
 
         # 업데이트 시간 설정
         post.updated_at = datetime.utcnow()
