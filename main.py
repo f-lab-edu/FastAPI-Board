@@ -110,7 +110,7 @@ def update_post(request: Request, post_id: UUID, update_data: UpdatePost) -> Res
     "/posts/{post_id}",
     status_code=status.HTTP_200_OK
 )
-def read_post(request: Request, post_id: UUID) -> dict[str, str]:
+def delete_post(request: Request, post_id: UUID) -> dict[str, str]:
     """
     게시글 삭제
     :param post_id: 삭제할 게시글의 ID
