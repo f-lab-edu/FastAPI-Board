@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, status
 from starlette.requests import Request
 from starlette.responses import Response
 
-from schemas.post import Post, ResponsePost, RequestPost
+from schemas.post import Post, ResponsePost, CreatePost, UpdatePost
 
 app = FastAPI()
 post_data = {}
@@ -61,7 +61,7 @@ def read_post(request: Request, post_id: UUID) -> ResponsePost:
 
 
 @app.post("/posts/", response_model=ResponsePost, status_code=status.HTTP_201_CREATED)
-def create_post(request: Request, post: RequestPost) -> ResponsePost:
+def create_post(request: Request, post: CreatePost) -> ResponsePost:
     """
     게시글 생성
     :param post: 생성할 게시글의 내용 (author, title, content)
@@ -80,7 +80,7 @@ def create_post(request: Request, post: RequestPost) -> ResponsePost:
     response_model=ResponsePost,
     status_code=status.HTTP_200_OK
 )
-def update_post(request: Request, post_id: UUID, update_data: RequestPost) -> ResponsePost:
+def update_post(request: Request, post_id: UUID, update_data: UpdatePost) -> ResponsePost:
     """
     게시글 수정
     :param post_id: 수정할 게시글의 ID
