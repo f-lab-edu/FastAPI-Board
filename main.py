@@ -56,7 +56,7 @@ def read_post(request: Request, post_id: UUID) -> ResponsePost:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="작성자만 접근 가능합니다.")
 
         return post
-    except IndexError:
+    except KeyError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="존재하지 않는 게시글입니다.")
 
 
@@ -101,5 +101,5 @@ def update_post(request: Request, post_id: UUID, update_data: RequestPost) -> Re
         post.updated_at = datetime.utcnow()
 
         return post
-    except IndexError:
+    except KeyError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="존재하지 않는 게시글입니다.")
