@@ -15,14 +15,14 @@ SECRETS_KEY_LENGTH = 32
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
-def read_root() -> dict[str, str]:
+def read_root() -> Response:
     """
     메인페이지
     루트 경로 접속 시, 토큰을 설정한다.
     :return: 루트 경로 접속 시, 메시지를 반환합니다.
     """
 
-    response = Response()
+    response = Response("F-LAB FastAPI Study 게시판", media_type='text/plain')
     response.set_cookie(key="token", value=secrets.token_hex(SECRETS_KEY_LENGTH))
 
     return response
