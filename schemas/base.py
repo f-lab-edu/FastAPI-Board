@@ -1,12 +1,8 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID, uuid4
 
 from pydantic import Field, BaseModel
-
-
-def _default_time():
-    return datetime.now(timezone.utc)
 
 
 def _change_local_time(time: datetime):
@@ -15,8 +11,8 @@ def _change_local_time(time: datetime):
 
 class BaseDataInfo(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    created_at: datetime = Field(default_factory=_default_time)
-    updated_at: datetime = Field(default_factory=_default_time)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class AuthMixin(BaseModel):
