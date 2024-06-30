@@ -1,12 +1,14 @@
 from typing import Optional
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
-from schemas.base import BaseDataInfo, AuthMixin
+from schemas.base import AuthMixin, TimeMixin
 
 
-class Post(BaseDataInfo, AuthMixin):
+class Post(AuthMixin, TimeMixin):
+    id: UUID = Field(default_factory=uuid4)
     author: str = Field(min_length=1, max_length=20)
     title: str = Field(min_length=5, max_length=50)
     content: str = Field(min_length=1)
