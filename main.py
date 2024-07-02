@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import Cookie, Depends, FastAPI, HTTPException, status
 from starlette.responses import Response
 
+from schemas.base import ResponseModel
 from schemas.post import CreatePost, Post, ResponsePost, UpdatePost
 
 app = FastAPI()
@@ -56,13 +57,17 @@ def read_root() -> Response:
     return response
 
 
-@app.get("/posts/", response_model=list[ResponsePost], status_code=status.HTTP_200_OK)
-def read_posts() -> list[ResponsePost]:
+@app.get(
+    "/posts/",
+    response_model=ResponseModel[ResponsePost],
+    status_code=status.HTTP_200_OK,
+)
+def read_posts() -> ResponseModel[ResponsePost]:
     """
     게시글 목록 조회
     :return: 게시글 목록과 각 게시글의 URL을 포함한 리스트를 반환합니다.
     """
-    return post_data.values()
+    return ResponseModel(count=len(post_data), items=post_data.values())
 
 
 @app.get(
