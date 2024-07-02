@@ -29,3 +29,5 @@ poetry run uvicorn main:app --reload
 - 게시글 생성 (Create Post)
 - 게시글 조회 (Get Post)
 - 게시글 목록 조회 (List Posts)
+- 게시글 수정 (Update Post)
+- 게시글 삭제 (Delete Post)

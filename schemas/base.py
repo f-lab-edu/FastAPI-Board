@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Generic, TypeVar
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
+
+T = TypeVar("T")
 
 
 def _default_time():
@@ -10,6 +12,11 @@ def _default_time():
 
 def _change_local_time(time: datetime):
     return time.astimezone()
+
+
+class ResponseModel(BaseModel, Generic[T]):
+    count: int
+    items: list[T]
 
 
 class TimeMixin(BaseModel):
