@@ -23,12 +23,11 @@ def get_token(token: str = Cookie(None)) -> str:
     return token
 
 
-def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> None:
+def verify_post_id(post_id: UUID) -> Post:
     """
-    게시글 작성자 확인
-    :param token: 사용자의 토큰
+    게시글 가져오기
     :param post_id: 게시글 ID
-    :return: None
+    :return: 게시글 객체. 존재하지 않는 게시글 ID인 경우 404 에러를 발생시킵니다.
     """
     post = post_data.get(post_id)
 
@@ -36,6 +35,18 @@ def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="존재하지 않는 게시글입니다."
         )
+
+    return post
+
+
+def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> None:
+    """
+    게시글 작성자 확인
+    :param token: 사용자의 토큰
+    :param post_id: 게시글 ID
+    :return: None
+    """
+    post = verify_post_id(post_id)
 
     if token != post.token:
         raise HTTPException(
@@ -73,13 +84,13 @@ def read_posts() -> ResponseModel[ResponsePost]:
 @app.get(
     "/posts/{post_id}", response_model=ResponsePost, status_code=status.HTTP_200_OK
 )
-def read_post(post_id: UUID) -> ResponsePost:
+def read_post(post=Depends(verify_post_id)) -> ResponsePost:
     """
     게시글 조회
     :param post_id: 조회할 게시글의 ID
     :return: 특정 ID를 가진 게시글의 내용을 반환합니다. 존재하지 않는 게시글 ID인 경우 404 에러를 발생시킵니다.
     """
-    return post_data[post_id]
+    return post
 
 
 @app.post("/posts/", response_model=ResponsePost, status_code=status.HTTP_201_CREATED)
