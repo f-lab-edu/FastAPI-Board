@@ -1,11 +1,10 @@
 import secrets
-from datetime import datetime
 from uuid import UUID
 
 from fastapi import Cookie, Depends, FastAPI, HTTPException, status
 from starlette.responses import Response
 
-from schemas.base import ResponseModel
+from schemas.base import ResponseModel, _default_time
 from schemas.post import CreatePost, Post, ResponsePost, UpdatePost
 
 app = FastAPI()
@@ -125,7 +124,7 @@ def update_post(update_data: UpdatePost, post=Depends(verify_author)) -> Respons
             setattr(post, key, value)
 
     # 업데이트 시간 재설정
-    post.updated_at = datetime.utcnow()
+    post.updated_at = _default_time()
 
     return post
 
