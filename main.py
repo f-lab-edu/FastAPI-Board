@@ -111,18 +111,13 @@ def create_post(post: CreatePost, token=Depends(get_token)) -> ResponsePost:
 @app.patch(
     "/posts/{post_id}", response_model=ResponsePost, status_code=status.HTTP_200_OK
 )
-def update_post(
-    post_id: UUID, update_data: UpdatePost, depends=Depends(verify_author)
-) -> ResponsePost:
+def update_post(update_data: UpdatePost, post=Depends(verify_author)) -> ResponsePost:
     """
     게시글 수정
     :param post_id: 수정할 게시글의 ID
     :param update_data: 수정할 게시글의 내용 (author, title, content)
     :return: 특정 ID를 가진 게시글의 내용을 수정합니다. 존재하지 않는 게시글 ID인 경우 404 에러를 발생시킵니다.
     """
-
-    # 수정을 위해 게시글 데이터 가져오기
-    post = post_data[post_id]
 
     # 게시글 내용 수정
     for key, value in update_data:
@@ -136,12 +131,12 @@ def update_post(
 
 
 @app.delete("/posts/{post_id}", status_code=status.HTTP_200_OK)
-def delete_post(post_id: UUID, depends=Depends(verify_author)) -> dict[str, str]:
+def delete_post(post=Depends(verify_author)) -> dict[str, str]:
     """
     게시글 삭제
     :param post_id: 삭제할 게시글의 ID
     :return: 특정 ID를 가진 게시글을 삭제합니다. 존재하지 않는 게시글 ID인 경우 404 에러를 발생시킵니다.
     """
-    del post_data[post_id]
+    del post_data[post.id]
 
     return {"message": "게시글이 삭제되었습니다."}
