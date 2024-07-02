@@ -16,7 +16,7 @@ post_data = {}
 SECRETS_KEY_LENGTH = 32
 
 
-def verify_author(request: Request, post_id: UUID):
+def verify_author(request: Request, post_id: UUID) -> None:
     """
     게시글 작성자 확인
     :param request: Request 객체
