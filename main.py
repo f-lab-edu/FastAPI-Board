@@ -27,7 +27,7 @@ def verify_post_id(post_id: UUID) -> Post:
     """
     게시글 가져오기
     :param post_id: 게시글 ID
-    :return: 게시글 객체. 존재하지 않는 게시글 ID인 경우 404 에러를 발생시킵니다.
+    :return: 게시글 객체
     """
     post = post_data.get(post_id)
 
@@ -39,12 +39,12 @@ def verify_post_id(post_id: UUID) -> Post:
     return post
 
 
-def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> None:
+def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> Post:
     """
     게시글 작성자 확인
     :param token: 사용자의 토큰
     :param post_id: 게시글 ID
-    :return: None
+    :return: 게시글 객체
     """
     post = verify_post_id(post_id)
 
@@ -52,6 +52,8 @@ def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="작성자만 접근 가능합니다."
         )
+
+    return post
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
