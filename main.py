@@ -1,11 +1,8 @@
 import secrets
 from datetime import datetime
-from functools import wraps
-from typing import Callable
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException, status
-from starlette.requests import Request
+from fastapi import Cookie, Depends, FastAPI, HTTPException, status
 from starlette.responses import Response
 
 from schemas.post import CreatePost, Post, ResponsePost, UpdatePost
@@ -16,10 +13,19 @@ post_data = {}
 SECRETS_KEY_LENGTH = 32
 
 
-def verify_author(request: Request, post_id: UUID) -> None:
+def get_token(token: str = Cookie(None)) -> str:
+    """
+    토큰 가져오기
+    :param token: 사용자의 토큰
+    :return: 사용자의 토큰을 반환합니다.
+    """
+    return token
+
+
+def verify_author(post_id: UUID, token: str | None = Cookie(None)) -> None:
     """
     게시글 작성자 확인
-    :param request: Request 객체
+    :param token: 사용자의 토큰
     :param post_id: 게시글 ID
     :return: None
     """
@@ -30,25 +36,10 @@ def verify_author(request: Request, post_id: UUID) -> None:
             status_code=status.HTTP_404_NOT_FOUND, detail="존재하지 않는 게시글입니다."
         )
 
-    if request.cookies.get("token") != post.token:
+    if token != post.token:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="작성자만 접근 가능합니다."
         )
-
-
-def author_verification(func: Callable):
-    """
-    게시글 작성자 확인 데코레이터
-    :param func: 데코레이터를 적용할 함수
-    :return: 데코레이터 함수
-    """
-
-    @wraps(func)
-    def wrapper(request: Request, post_id: UUID, *args, **kwargs):
-        verify_author(request, post_id)
-        return func(request, post_id, *args, **kwargs)
-
-    return wrapper
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
@@ -77,7 +68,7 @@ def read_posts() -> list[ResponsePost]:
 @app.get(
     "/posts/{post_id}", response_model=ResponsePost, status_code=status.HTTP_200_OK
 )
-def read_post(request: Request, post_id: UUID) -> ResponsePost:
+def read_post(post_id: UUID) -> ResponsePost:
     """
     게시글 조회
     :param post_id: 조회할 게시글의 ID
@@ -87,13 +78,13 @@ def read_post(request: Request, post_id: UUID) -> ResponsePost:
 
 
 @app.post("/posts/", response_model=ResponsePost, status_code=status.HTTP_201_CREATED)
-def create_post(request: Request, post: CreatePost) -> ResponsePost:
+def create_post(post: CreatePost, token=Depends(get_token)) -> ResponsePost:
     """
     게시글 생성
     :param post: 생성할 게시글의 내용 (author, title, content)
     :return: 생성 후 루트 경로로 리다이렉트합니다.
     """
-    post = Post(token=request.cookies.get("token"), **post.__dict__)
+    post = Post(token=token, **post.__dict__)
     post_data[post.id] = post
 
     return post
@@ -102,9 +93,8 @@ def create_post(request: Request, post: CreatePost) -> ResponsePost:
 @app.patch(
     "/posts/{post_id}", response_model=ResponsePost, status_code=status.HTTP_200_OK
 )
-@author_verification
 def update_post(
-    request: Request, post_id: UUID, update_data: UpdatePost
+    post_id: UUID, update_data: UpdatePost, depends=Depends(verify_author)
 ) -> ResponsePost:
     """
     게시글 수정
@@ -128,8 +118,7 @@ def update_post(
 
 
 @app.delete("/posts/{post_id}", status_code=status.HTTP_200_OK)
-@author_verification
-def delete_post(request: Request, post_id: UUID) -> dict[str, str]:
+def delete_post(post_id: UUID, depends=Depends(verify_author)) -> dict[str, str]:
     """
     게시글 삭제
     :param post_id: 삭제할 게시글의 ID
